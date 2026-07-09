@@ -1,0 +1,19 @@
+from sqlalchemy import Column,String,Integer,DateTime, Date,ForeignKey
+from sqlalchemy import Enum as SAEnum
+from app.domain.enums import TaskStatus, TaskPriority
+from app.db.base import Base
+from datetime import datetime
+class Task(Base):
+    __tablename__ = "tasks"
+    id = Column(Integer, primary_key=True)
+    title = Column(String(50), nullable=True)
+    description = Column(String(1000)) 
+    status = Column(SAEnum(TaskStatus), default=TaskStatus.TODO)
+    priority = Column(SAEnum(TaskPriority), default=TaskPriority.LOW) 
+    category = Column(String(50)) 
+    due_date = Column(Date, nullable=True) 
+    assignee_id = Column(Integer, ForeignKey('users.id'))
+    assigner_id = Column(Integer, ForeignKey('users.id'))
+    created_at = Column(DateTime, default=datetime.utcnow) 
+ 
+    
