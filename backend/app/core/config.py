@@ -7,4 +7,4 @@ class Settings  (BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES : int = 1440
     model_config = SettingsConfigDict(env_file='.env')
 
-settings = Settings()
+settings = Settings() # type: ignore

@@ -17,6 +17,9 @@ class UserRepository:
         self.session.commit()
         self.session.refresh(user)
         return user
-        
+    
+    def get_by_id(self,user_id : int) -> User | None :
+        user = self.session.get(User, user_id)
+        return user 
         
         

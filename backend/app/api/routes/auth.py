@@ -6,6 +6,9 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate,UserResponse
 from app.services.auth_service import AuthService
 from fastapi.security import OAuth2PasswordRequestForm
+from app.api.deps import get_current_user
+from app.db.models import User
+
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
@@ -22,5 +25,9 @@ def login(
     service = AuthService(UserRepository(session))
     token = service.login(form.username, form.password)
     return {"access_token" : token, "token_type" : "bearer"}
+
+@router.get('/me', response_model=UserResponse)
+def current_user(user : User = Depends(get_current_user)):
+    return user
 
 
