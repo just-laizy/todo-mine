@@ -23,5 +23,17 @@ class TaskResponse(BaseModel):
     created_at : datetime
     model_config = ConfigDict(from_attributes=True)
 
+class TaskStatusUpdate(BaseModel):
+    status : TaskStatus
+
+class TaskUpdate(BaseModel):
+    title : str | None =None
+    description : str | None =None
+    priority : TaskPriority | None =None
+    category : str | None =None
+    due_date : date | None = None
+    assignee_id : int | None = None
+
+
 
 

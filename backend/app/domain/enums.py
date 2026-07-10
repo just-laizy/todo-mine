@@ -3,7 +3,7 @@ from enum import Enum
 class TaskStatus(str, Enum):
     TODO = 'todo'
     IN_PROGRESS = 'in_progress'
-    PENDING_REVIEWv = 'pending_review' 
+    PENDING_REVIEW = 'pending_review' 
     DONE = 'done'
 
 class TaskPriority(str, Enum):

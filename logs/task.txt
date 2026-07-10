@@ -1,0 +1,28 @@
+1. domain/enums.py — the vocabulary first. TaskStatus (todo / in_progress / pending_review / done) and TaskPriority (low / medium / high / urgent) as (str, Enum) classes. Everything else — model, schemas, filters, board keys — speaks in these terms, so they had to exist before anything used them. This is what domain/ is for: words the whole app agrees on, depending on nothing.
+
+2. db/models/task.py — the table. Columns for the facts, plus the machinery: SAEnum(TaskStatus) so illegal statuses can't be stored, default=TaskStatus.TODO so new tasks are born in the right column, two ForeignKey("users.id") columns (assignee/assigner) tying every task to real users, timestamps with callable defaults. Registered in models/__init__.py so create_all could see it.
+
+3. schemas/task.py — the two contracts. TaskCreate = what a client may decide (title, description, priority, category, optional due_date, optional assignee). Deliberately absent: status (the default decides) and assigner_id (the token decides). TaskResponse = everything the board needs back, id included, with from_attributes so it can read SQLAlchemy objects.
+
+4. repositories/task_repository.py — storage verbs. create (build Task(...) → add → commit → refresh) and get_all with the incremental query: start from select(Task), bolt on one .where per filter the caller actually provided, scalars().all() at the end. No opinions, no HTTP, just SQL.
+
+5. services/task_service.py — the rules.
+
+create_task: assigner is always current_user.id; no assignee given → assign to self; then delegate with keywords.
+list_tasks: passes filters through (thin now, grows team-scoping in Phase 3).
+get_board: fetch flat → four empty buckets via dict comprehension → deal each task by its own status → return the dict.
+6. api/routes/tasks.py — the doors. All three protected by current_user: User = Depends(get_current_user):
+
+POST / — validate body as TaskCreate, delegate to create_task with the fields + current user
+GET / — five optional query params (x: type | None = None), delegate to list_tasks
+GET /board — no params, delegate to get_board; declared above future /{task_id} routes on purpose
+Plus the include_router pair in main.py.
+
+One request, one sentence each
+Create: token → validated body → service stamps ownership → repo inserts → row comes back with id → response filtered to safe fields.
+Board: token → repo fetches the flat heap → service deals tasks into four labeled buckets by each task's own status → response model translates every task → JSON.
+
+What this slice taught that register didn't
+Enums as columns and as validation, foreign keys, optional fields (| None = None in schemas and query params), incremental query building, dict comprehensions and grouping, response models for lists and dicts — and the bug taxonomy grew: inverted None checks, returning the service instead of calling it, 0 vs None, blueprint-vs-instance round three.
+
+Notice the deeper thing: steps 3–6 are structurally identical to the register slice. That's the clean-architecture payoff arriving on schedule — the next features (status transitions, comments, checklists) are this same walk with different nouns.
