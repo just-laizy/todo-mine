@@ -15,5 +15,6 @@ class Task(Base):
     assignee_id = Column(Integer, ForeignKey('users.id'))
     assigner_id = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow) 
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
  
     

@@ -22,4 +22,14 @@ class UserRepository:
         user = self.session.get(User, user_id)
         return user 
         
+    def get_by_team(self,team_id : int) -> list[User]:
+        statement = select(User).where(User.team_id == team_id)
+        return list(self.session.execute(statement).scalars().all())
+    
+    def set_team(self,user : User,team_id : int | None)-> User:
+        user.team_id = team_id # type: ignore
+        self.session.commit()
+        self.session.refresh(user)
+        return user
+
         
