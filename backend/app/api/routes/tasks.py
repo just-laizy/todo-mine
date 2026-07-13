@@ -16,7 +16,7 @@ from app.domain.enums import TaskPriority,TaskStatus
 router = APIRouter(prefix='/tasks' , tags=["tasks"])
 
 @router.post('/', response_model=TaskResponse, status_code = 201)
-def task(
+def create_task(
     data : TaskCreate,
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
@@ -39,6 +39,7 @@ def get_tasks(
     assignee_id : int |None = None,
     assigner_id : int |None = None,
     session : Session = Depends(get_db),
+    current_user : User = Depends(get_current_user)
 ):
     service = TaskService(TaskRepository(session),UserRepository(session))
     return service.list_tasks(
@@ -46,7 +47,8 @@ def get_tasks(
         category=category,
         assignee_id=assignee_id,
         assigner_id=assigner_id,
-        search=search
+        search=search,
+        current_user=current_user
     )
 
 @router.get('/board', response_model=dict[TaskStatus, list[TaskResponse]])
@@ -55,7 +57,7 @@ def get_board(
     current_user : User = Depends(get_current_user)
 ): 
     service = TaskService(TaskRepository(session),UserRepository(session))
-    return service.get_board()
+    return service.get_board(current_user)
 
 @router.get('/{task_id}', response_model=TaskResponse)
 def get_task(
@@ -64,7 +66,7 @@ def get_task(
     current_user : User = Depends(get_current_user)
 ):
     service = TaskService(TaskRepository(session),UserRepository(session))
-    return service.get_task(task_id)
+    return service.get_task(task_id, current_user)
 
 @router.patch("/{task_id}/status", response_model=TaskResponse)
 def change_status(
@@ -74,7 +76,7 @@ def change_status(
     current_user : User = Depends(get_current_user)
 ):
     service = TaskService(TaskRepository(session), UserRepository(session))
-    return service.change_status(task_id,data.status)
+    return service.change_status(task_id,data.status, current_user)
 
 @router.patch('/{task_id}', response_model=TaskResponse)
 def update_task(
@@ -84,7 +86,7 @@ def update_task(
     current_user : User = Depends(get_current_user)
 ):
     service = TaskService(TaskRepository(session), UserRepository(session))
-    return service.update_task(task_id,data)
+    return service.update_task(task_id,data,current_user)
 
 @router.delete('/{task_id}', status_code=204)
 def delete_task(
@@ -93,4 +95,4 @@ def delete_task(
     current_user : User = Depends(get_current_user)
 ):
     service = TaskService(TaskRepository(session), UserRepository(session))
-    service.delete_task(task_id)
+    service.delete_task(task_id, current_user)

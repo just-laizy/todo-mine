@@ -14,9 +14,10 @@ class TaskRepository:
         description : str,
         priority : str,
         category : str,
-        due_date : date,
+        due_date : date | None,
         assignee_id : int,
-        assigner_id : int
+        assigner_id : int,
+        team_id : int | None
     ):
         task = Task(
             title = title,
@@ -25,13 +26,14 @@ class TaskRepository:
             category = category,
             due_date = due_date,
             assignee_id = assignee_id,
-            assigner_id = assigner_id)
+            assigner_id = assigner_id,
+            team_id = team_id)
         self.session.add(task)
         self.session.commit()
         self.session.refresh(task)
         return task
     
-    def get_all(self, status = None, category = None, assignee_id = None, assigner_id = None, search = None):
+    def get_all(self, status = None, category = None, assignee_id = None, assigner_id = None, search = None, team_id = None):
         statement = select(Task)
         if status is not None:
             statement = statement.where(Task.status == status)
@@ -43,6 +45,8 @@ class TaskRepository:
             statement = statement.where(Task.assigner_id == assigner_id)
         if search is not None:
             statement = statement.where(Task.title.contains(search))
+        if team_id is not None:
+            statement = statement.where(Task.team_id == team_id)
         return self.session.execute(statement).scalars().all()
     
     def get_by_id(self,task_id : int)->Task | None:
