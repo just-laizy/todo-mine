@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from app.domain.enums import TaskPriority,TaskStatus
+from app.domain.enums import TaskPriority,TaskStatus, ReviewDecision
 from datetime import date,datetime
 
 class TaskCreate(BaseModel):
@@ -34,6 +34,8 @@ class TaskUpdate(BaseModel):
     due_date : date | None = None
     assignee_id : int | None = None
 
-
+class ReviewCreate(BaseModel):
+    decision : ReviewDecision
+    comment : str | None
 
 

@@ -1,13 +1,14 @@
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.comment_repository import CommentRepository
+
 from app.core.exceptions import AssigneeNotFound
-from app.db.models.task import Task
-from app.db.models.user import User
+from app.db.models import Task,User, Comment
 from app.domain.enums import TaskStatus, TaskPriority
 from datetime import date
 from app.core.exceptions import InvalidStatusTransition,TaskNotFound, NotAllowed
 from app.schemas.task import TaskUpdate
-from app.domain.enums import UserRole
+from app.domain.enums import UserRole,ReviewDecision
 
 AlLOWED_TRANSITIONS = {
     TaskStatus.TODO :{TaskStatus.IN_PROGRESS},
@@ -16,11 +17,22 @@ AlLOWED_TRANSITIONS = {
     TaskStatus.PENDING_REVIEW : {TaskStatus.DONE},
 
 }
-
+DECISION_OUTCOMES = {
+    ReviewDecision.APPROVED: TaskStatus.DONE,
+    ReviewDecision.CHANGES_REQUESTED: TaskStatus.IN_PROGRESS,
+    ReviewDecision.DECLINED: TaskStatus.TODO,
+}
 class TaskService: 
-    def __init__(self, task_repository: TaskRepository, user_repository : UserRepository):
+    def __init__(
+        self,
+        task_repository: TaskRepository,
+        user_repository : UserRepository,
+        comment_repository : CommentRepository
+    ):
         self.task_repository = task_repository
         self.user_repository = user_repository
+        self.comment_repository = comment_repository
+
 
     def create_task(
         self,
@@ -109,7 +121,44 @@ class TaskService:
         task=self.get_task(task_id,current_user)
         self.task_repository.delete(task)
 
-        
+    def add_comment(
+        self,
+        task_id : int,
+        current_user : User,
+        text : str
+    ) -> Comment:
+        self.get_task(task_id,current_user)# type: ignore
+        return self.comment_repository.create(
+            text = text,
+            task_id=task_id,
+            author_id=current_user.id
+        )
+    def list_comments(self,task_id : int,current_user : User) -> list[Comment]:
+        self.get_task(task_id,current_user)# type: ignore
+        return list(self.comment_repository.get_by_task(task_id))
+    
+    def review_task(
+        self,
+        task_id : int,
+        decision ,
+        comment : str,
+        current_user : User    
+    ) -> Task:
+        task = self.get_task(task_id,current_user)
+        if task.status != TaskStatus.PENDING_REVIEW:
+            raise InvalidStatusTransition()
+        if current_user.role == 'manager' and current_user.team_id == task.team_id or current_user.role == 'superadmin': # type: ignore
+            if decision == ReviewDecision.CHANGES_REQUESTED and comment is None:
+                raise CommentRequired()
+            if comment is not None:
+                self.comment_repository.create(
+                text=comment,
+                task_id=task_id,
+                author_id=current_user.id)           
+        else :
+            raise NotAllowed()
+        return self.task_repository.update_status(task, DECISION_OUTCOMES[decision])
+
 
 
 

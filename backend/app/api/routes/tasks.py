@@ -4,13 +4,15 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.task import TaskCreate
+from app.repositories.comment_repository import CommentRepository
+
+from app.schemas.comment import CommentResponse , CommentCreate
 from app.db.models import User
 from app.services.task_service import TaskService
-from app.schemas.task import TaskResponse, TaskStatusUpdate,TaskUpdate
+from app.schemas.task import TaskResponse, TaskStatusUpdate,TaskUpdate, TaskCreate,ReviewCreate
 from app.api.deps import get_current_user
 from app.domain.enums import TaskPriority,TaskStatus
- 
+
 
 
 router = APIRouter(prefix='/tasks' , tags=["tasks"])
@@ -21,7 +23,7 @@ def create_task(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session), UserRepository(session))
+    service = TaskService(TaskRepository(session), UserRepository(session), CommentRepository(session))
     return service.create_task(
         title=data.title,
         description=data.description,
@@ -41,7 +43,7 @@ def get_tasks(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session),UserRepository(session))
+    service = TaskService(TaskRepository(session),UserRepository(session), CommentRepository(session))
     return service.list_tasks(
         status=status,
         category=category,
@@ -56,7 +58,7 @@ def get_board(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ): 
-    service = TaskService(TaskRepository(session),UserRepository(session))
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
     return service.get_board(current_user)
 
 @router.get('/{task_id}', response_model=TaskResponse)
@@ -65,7 +67,7 @@ def get_task(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session),UserRepository(session))
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
     return service.get_task(task_id, current_user)
 
 @router.patch("/{task_id}/status", response_model=TaskResponse)
@@ -75,7 +77,7 @@ def change_status(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session), UserRepository(session))
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
     return service.change_status(task_id,data.status, current_user)
 
 @router.patch('/{task_id}', response_model=TaskResponse)
@@ -85,7 +87,7 @@ def update_task(
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session), UserRepository(session))
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
     return service.update_task(task_id,data,current_user)
 
 @router.delete('/{task_id}', status_code=204)
@@ -93,6 +95,35 @@ def delete_task(
     task_id : int,
     session : Session = Depends(get_db),
     current_user : User = Depends(get_current_user)
-):
-    service = TaskService(TaskRepository(session), UserRepository(session))
+):    
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
     service.delete_task(task_id, current_user)
+
+@router.post('/{task_id}/comments', response_model=CommentResponse, status_code=201)
+def add_comment(
+    task_id :int,
+    data :CommentCreate,
+    session : Session = Depends(get_db),
+    current_user : User = Depends(get_current_user)
+):
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
+    return service.add_comment(task_id,current_user,data.text)
+
+@router.get('/{task_id}/comments', response_model=list[CommentResponse], status_code=201)
+def list_comments(
+    task_id :int,
+    session : Session = Depends(get_db),
+    current_user : User = Depends(get_current_user)
+):
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
+    return list(service.list_comments(task_id,current_user))
+
+@router.post('/{task_id}/review', response_model=TaskResponse)
+def review_create(
+    task_id : int,
+    data : ReviewCreate,
+    session : Session = Depends(get_db),
+    current_user : User = Depends(get_current_user)
+):
+    service = TaskService(TaskRepository(session),UserRepository(session),CommentRepository(session))
+    return service.review_task(task_id,data.decision,data.comment,current_user)

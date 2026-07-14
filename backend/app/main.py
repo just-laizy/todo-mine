@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.db import models
 from app.db.base import Base
 from app.db.session import engine
-from app.core.exceptions import EmailAlreadyRegistered,AssigneeNotFound,InvalidCredentials,TaskNotFound, InvalidStatusTransition, NotAllowed,TeamNotFound
+from app.core.exceptions import EmailAlreadyRegistered,AssigneeNotFound,InvalidCredentials,TaskNotFound, InvalidStatusTransition, NotAllowed,TeamNotFound,CommentRequired
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.tasks import router as task_router
@@ -62,6 +62,12 @@ def handle_team(request,exc):
     return JSONResponse(
         status_code=403, 
         content={'detail' : 'Team not found'}
+    )
+@app.exception_handler(CommentRequired)
+def handle_comment(request,exc):
+    return JSONResponse(
+        status_code=400, 
+        content={'detail' : 'required a comment'}
     )
 @app.get("/health")
 def health_check():

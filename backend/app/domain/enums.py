@@ -17,3 +17,7 @@ class UserRole(str, Enum):
     MANAGER = 'manager'
     USER = 'user'
 
+class ReviewDecision(str , Enum):
+    APPROVED = 'approved'
+    CHANGES_REQUESTED = 'change_requested'
+    DECLINED = 'declined' 
