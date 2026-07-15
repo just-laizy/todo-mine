@@ -38,4 +38,3 @@ class ReviewCreate(BaseModel):
     decision : ReviewDecision
     comment : str | None
 
-

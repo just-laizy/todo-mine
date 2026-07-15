@@ -1,9 +1,11 @@
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.comment_repository import CommentRepository
+from app.repositories.checklistItem_repository import ChecklistItemRepository
+
 
 from app.core.exceptions import AssigneeNotFound
-from app.db.models import Task,User, Comment
+from app.db.models import Task,User, Comment, ChecklistItem
 from app.domain.enums import TaskStatus, TaskPriority
 from datetime import date
 from app.core.exceptions import InvalidStatusTransition,TaskNotFound, NotAllowed
@@ -27,12 +29,13 @@ class TaskService:
         self,
         task_repository: TaskRepository,
         user_repository : UserRepository,
-        comment_repository : CommentRepository
+        comment_repository : CommentRepository,
+        checklist_repository : ChecklistItemRepository
     ):
         self.task_repository = task_repository
         self.user_repository = user_repository
         self.comment_repository = comment_repository
-
+        self.checklist_repository = checklist_repository
 
     def create_task(
         self,
@@ -144,8 +147,8 @@ class TaskService:
         comment : str,
         current_user : User    
     ) -> Task:
-        task = self.get_task(task_id,current_user)
-        if task.status != TaskStatus.PENDING_REVIEW:
+        task = self.get_task(task_id,current_user)# type: ignore
+        if task.status != TaskStatus.PENDING_REVIEW:# type: ignore
             raise InvalidStatusTransition()
         if current_user.role == 'manager' and current_user.team_id == task.team_id or current_user.role == 'superadmin': # type: ignore
             if decision == ReviewDecision.CHANGES_REQUESTED and comment is None:
@@ -159,6 +162,44 @@ class TaskService:
             raise NotAllowed()
         return self.task_repository.update_status(task, DECISION_OUTCOMES[decision])
 
-
+    def add_item(
+        self,
+        text : str,
+        task_id : int,
+        current_user : User,
+    ) -> ChecklistItem:
+        self.get_task(task_id,current_user)# type: ignore
+        position = len(self.checklist_repository.get_by_task(task_id=task_id))
+        return self.checklist_repository.create(text = text,position=position,task_id=task_id)
+    
+    def list_items(
+        self,
+        task_id : int,
+        current_user : User
+    ) -> list[ChecklistItem]:
+        self.get_task(task_id,current_user)# type: ignore
+        return list(self.checklist_repository.get_by_task(task_id=task_id))
+        
+    def toggle_item(
+            self,
+            item_id : int,
+            current_user : User
+    )->ChecklistItem:
+        item = self.checklist_repository.get_by_id(item_id)# type: ignore
+        if item is None:
+            raise TaskNotFound
+        self.get_task(item.task_id,current_user=current_user)# type: ignore
+        return self.checklist_repository.set_done(item,not item.done_flag)
+        
+    def delete_item(
+            self,
+            item_id : int,
+            current_user : User
+    ):
+        item = self.checklist_repository.get_by_id(item_id)# type: ignore
+        if item is None:
+            raise TaskNotFound
+        self.get_task(item.task_id,current_user=current_user)# type: ignore
+        self.checklist_repository.delete_item(item)
 
 

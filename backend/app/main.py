@@ -10,6 +10,7 @@ from app.core.exceptions import EmailAlreadyRegistered,AssigneeNotFound,InvalidC
 from app.api.routes.auth import router as auth_router
 from app.api.routes.tasks import router as task_router
 from app.api.routes.teams import router as team_router
+from app.api.routes.checklist import router as checklist_router
 
 
 
@@ -18,6 +19,7 @@ app = FastAPI(title="Task Manager API")
 Base.metadata.create_all(bind = engine)
 
 app.include_router(auth_router)
+app.include_router(checklist_router)
 app.include_router(task_router)
 app.include_router(team_router)
 

@@ -20,3 +20,4 @@ class CommentRepository :
         comment = select(Comment).where(Comment.task_id == task_id)
         return list(self.session.execute(comment).scalars().all())
 
+    
