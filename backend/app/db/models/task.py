@@ -11,10 +11,10 @@ class Task(Base):
     status = Column(SAEnum(TaskStatus), default=TaskStatus.TODO)
     priority = Column(SAEnum(TaskPriority), default=TaskPriority.LOW) 
     category = Column(String(50)) 
-    due_date = Column(Date, nullable=True) 
+    due_date = Column(DateTime, nullable=True) 
     assignee_id = Column(Integer, ForeignKey('users.id'))
     assigner_id = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow) 
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
- 
+    done_at = Column(DateTime, nullable=True)
     

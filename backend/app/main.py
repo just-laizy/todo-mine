@@ -5,12 +5,14 @@ from app.core.config import settings
 from app.db import models
 from app.db.base import Base
 from app.db.session import engine
-from app.core.exceptions import EmailAlreadyRegistered,AssigneeNotFound,InvalidCredentials,TaskNotFound, InvalidStatusTransition, NotAllowed,TeamNotFound,CommentRequired
+from app.core.exceptions import EmailAlreadyRegistered,AssigneeNotFound,InvalidCredentials,TaskNotFound, InvalidStatusTransition, UserNotFound,NotAllowed,TeamNotFound,CommentRequired
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.tasks import router as task_router
 from app.api.routes.teams import router as team_router
 from app.api.routes.checklist import router as checklist_router
+from app.api.routes.stats import router as stats_router
+from app.api.routes.admin import router as admin_router
 
 
 
@@ -22,6 +24,8 @@ app.include_router(auth_router)
 app.include_router(checklist_router)
 app.include_router(task_router)
 app.include_router(team_router)
+app.include_router(stats_router)
+app.include_router(admin_router )
 
 @app.exception_handler(EmailAlreadyRegistered)
 def handle_email(request,exc):
@@ -70,6 +74,12 @@ def handle_comment(request,exc):
     return JSONResponse(
         status_code=400, 
         content={'detail' : 'required a comment'}
+    )
+@app.exception_handler(UserNotFound)
+def handle_user(request,exc):
+    return JSONResponse(
+        status_code=401, 
+        content={'detail' : 'user not found'}
     )
 @app.get("/health")
 def health_check():

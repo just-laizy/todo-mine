@@ -3,6 +3,7 @@ from sqlalchemy import select
 from app.db.models import Task
 from datetime import date
 from app.domain.enums import TaskStatus
+from datetime import datetime
 
 class TaskRepository:
     def __init__(self, session:Session):
@@ -53,7 +54,11 @@ class TaskRepository:
         return self.session.get(Task,task_id)
 
     def update_status(self, task : Task, status : TaskStatus) -> Task:
-        task.status = status # type: ignore
+        task.status = status  # type: ignore
+        if task.status == TaskStatus.DONE: # type: ignore
+            task.done_at = datetime.utcnow() # type: ignore
+        else :
+            task.done_at = None # type: ignore
         self.session.commit()
         self.session.refresh(task)
         return task 
@@ -64,6 +69,7 @@ class TaskRepository:
     def delete(self,task :Task) ->None:
         delete = self.session.delete(task)
         self.session.commit()
+    
         
 
 

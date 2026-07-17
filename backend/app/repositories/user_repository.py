@@ -31,5 +31,18 @@ class UserRepository:
         self.session.commit()
         self.session.refresh(user)
         return user
-
+    
+    def get_all(self,role = None,team_id  = None,status = None):
+        statement = select(User)
+        if role is not None:
+            statement = statement.where(User.role == role)
+        if team_id is not None:
+            statement = statement.where(User.team_id == team_id)
+        if status is not None:
+            statement = statement.where(User.status == status)
+        return self.session.execute(statement).scalars().all()
+    def update(self,user : User) -> User:
+        self.session.commit()
+        self.session.refresh(user)
+        return user
         

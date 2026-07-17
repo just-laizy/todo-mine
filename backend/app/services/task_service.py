@@ -1,6 +1,7 @@
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.comment_repository import CommentRepository
+from app.repositories.activity_repository import ActivityRepository
 from app.repositories.checklistItem_repository import ChecklistItemRepository
 
 
@@ -8,7 +9,7 @@ from app.core.exceptions import AssigneeNotFound
 from app.db.models import Task,User, Comment, ChecklistItem
 from app.domain.enums import TaskStatus, TaskPriority
 from datetime import date
-from app.core.exceptions import InvalidStatusTransition,TaskNotFound, NotAllowed
+from app.core.exceptions import InvalidStatusTransition,TaskNotFound, NotAllowed,CommentRequired
 from app.schemas.task import TaskUpdate
 from app.domain.enums import UserRole,ReviewDecision
 
@@ -30,12 +31,15 @@ class TaskService:
         task_repository: TaskRepository,
         user_repository : UserRepository,
         comment_repository : CommentRepository,
-        checklist_repository : ChecklistItemRepository
+        checklist_repository : ChecklistItemRepository,
+        activity_repository : ActivityRepository
+
     ):
         self.task_repository = task_repository
         self.user_repository = user_repository
         self.comment_repository = comment_repository
         self.checklist_repository = checklist_repository
+        self.activity_repository = activity_repository
 
     def create_task(
         self,
@@ -66,6 +70,7 @@ class TaskService:
             assignee_id=assignee_id,# type: ignore
             assigner_id=current_user.id,# type: ignore
             team_id = current_user.team_id) # type: ignore
+        self.activity_repository.create(current_user.id, "task.created", f"task {task.id}: {task.title}")# type: ignore
         return task
     
     def list_tasks(self,status, category, assignee_id, assigner_id , search, current_user : User ):
@@ -150,7 +155,9 @@ class TaskService:
         task = self.get_task(task_id,current_user)# type: ignore
         if task.status != TaskStatus.PENDING_REVIEW:# type: ignore
             raise InvalidStatusTransition()
-        if current_user.role == 'manager' and current_user.team_id == task.team_id or current_user.role == 'superadmin': # type: ignore
+        is_team_manager = current_user.role == UserRole.MANAGER and current_user.team_id == task.team_id
+        is_superadmin = current_user.role == UserRole.SUPERADMIN
+        if is_team_manager or is_superadmin: # type: ignore
             if decision == ReviewDecision.CHANGES_REQUESTED and comment is None:
                 raise CommentRequired()
             if comment is not None:
@@ -160,6 +167,7 @@ class TaskService:
                 author_id=current_user.id)           
         else :
             raise NotAllowed()
+        self.activity_repository.create(current_user.id, "task.reviewed", f"task {task_id}: {decision.value}")# type: ignore
         return self.task_repository.update_status(task, DECISION_OUTCOMES[decision])
 
     def add_item(
@@ -189,7 +197,7 @@ class TaskService:
         if item is None:
             raise TaskNotFound
         self.get_task(item.task_id,current_user=current_user)# type: ignore
-        return self.checklist_repository.set_done(item,not item.done_flag)
+        return self.checklist_repository.set_done(item,not item.done_flag) # type: ignore
         
     def delete_item(
             self,

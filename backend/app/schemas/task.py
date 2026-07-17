@@ -21,6 +21,7 @@ class TaskResponse(BaseModel):
     assignee_id : int | None = None
     assigner_id : int 
     created_at : datetime
+    done_at : datetime | None= None
     model_config = ConfigDict(from_attributes=True)
 
 class TaskStatusUpdate(BaseModel):
