@@ -1,3 +1,5 @@
+import json
+
 from app.repositories.stats_repository import StatsRepository
 from app.repositories.team_repository import TeamRepository
 from app.repositories.user_repository import UserRepository
@@ -9,6 +11,13 @@ from app.db.models import User
 from app.schemas.stats import MemberStats
 from datetime import date
 from app.schemas.stats import LeaderboardEntry
+
+
+    
+import json
+from app.core.cache import redis_client
+
+BOARD_CACHE_TTL = 60  
 class StatsService:
     def __init__(
         self,
@@ -20,15 +29,26 @@ class StatsService:
         self.user_repository = user_repository
         self.team_repository = team_repository
 
-    def board_stats(self,current_user : User) ->dict[TaskStatus,int]:
+
+
+
+    def board_stats(self, current_user: User) -> dict[TaskStatus, int]:
         if current_user.role == UserRole.SUPERADMIN:
-            team_id =  None
-        else :
+            team_id = None
+        else:
             team_id = current_user.team_id
 
-        counts = {status : 0 for status in TaskStatus}
-        for status,count in self.stats_repository.count_by_status(team_id):
+        cache_key = f"stats:board:{team_id if team_id is not None else 'all'}"
+
+        cached = redis_client.get(cache_key)
+        if cached is not None:
+            return json.loads(cached)
+
+        counts = {status: 0 for status in TaskStatus}
+        for status, count in self.stats_repository.count_by_status(team_id):
             counts[status] = count
+
+        redis_client.set(cache_key, json.dumps(counts), ex=BOARD_CACHE_TTL)
         return counts
 
     def leaderboard(

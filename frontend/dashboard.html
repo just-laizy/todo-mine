@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourSpace</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Your<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html" class="active">Board</a>
+                <a href="#" data-roles="manager,superadmin">Stats</a>
+                <a href="#" data-roles="superadmin">Users</a>
+                <a href="#" data-roles="superadmin">Teams</a>
+                <a href="#" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head">
+                <h2>Board</h2>
+                <button class="btn-small" id="new-task">+ New task</button>
+            </div>
+            <div class="board" id="board"></div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow — Sign in</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <h1 class="brand">Your <span>Space</span></h1>
+            <p class="subtitle">Task management system</p>
+
+            <div class="tabs">
+                <button class="tab active" id="tab-signin">Sign in</button>
+                <button class="tab" id="tab-signup">Create account</button>
+            </div>
+
+            <form id="auth-form">
+                <div id="name-field" class="hidden">
+                    <label for="name">Name</label>
+                    <input id="name" type="text" autocomplete="name">
+                </div>
+
+                <label for="email">Email</label>
+                <input id="email" type="email" required autocomplete="email">
+
+                <label for="password">Password</label>
+                <input id="password" type="password" required minlength="8">
+
+                <p class="error" id="error"></p>
+                <button class="btn" id="submit" type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
