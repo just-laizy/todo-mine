@@ -23,8 +23,12 @@ async function api(path, options = {}) {
 
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-        const detail = data && data.detail;
-        throw new Error(typeof detail === "string" ? detail : "Request failed (" + response.status + ")");
+    const detail = data && data.detail;
+    if (Array.isArray(detail)) {
+        const msg = detail.map(e => e.loc[e.loc.length - 1] + ": " + e.msg).join("; ");
+        throw new Error(msg);
+    }
+    throw new Error(typeof detail === "string" ? detail : "Request failed (" + response.status + ")");
     }
     return data;
 }

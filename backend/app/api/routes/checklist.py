@@ -11,24 +11,37 @@ from app.api.deps import get_current_user
 from app.db.models import User
 from app.schemas.checklistItem import ChecklistItemResponse, ChecklistItemCreate
 from app.services.task_service import TaskService
+from app.repositories.activity_repository import ActivityRepository
 
 router = APIRouter(prefix="/checklist-items", tags=["checklist"])
 
 @router.patch('/{task_id}/toggle', response_model=ChecklistItemResponse)
 def toggle_checklist(
-    item_id:int,
+    task_id:int,
     session :Session= Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session), UserRepository(session), CommentRepository(session),ChecklistItemRepository(session))
-    return service.toggle_item(item_id,current_user)
+    service = TaskService(
+    TaskRepository(session),
+    UserRepository(session),
+    CommentRepository(session),
+    ChecklistItemRepository(session),
+    ActivityRepository(session),
+)
+    return service.toggle_item(task_id,current_user)
 
 @router.delete('/{task_id}', status_code=204)
 def delete_checklist(
-    item_id:int,
+    task_id:int,
     session :Session= Depends(get_db),
     current_user : User = Depends(get_current_user)
 ):
-    service = TaskService(TaskRepository(session), UserRepository(session), CommentRepository(session),ChecklistItemRepository(session))
-    service.delete_item(item_id, current_user)
+    service = TaskService(
+        TaskRepository(session),
+        UserRepository(session),     
+        CommentRepository(session),
+        ChecklistItemRepository(session),
+        ActivityRepository(session)
+    )
+    service.delete_item(task_id, current_user)
     

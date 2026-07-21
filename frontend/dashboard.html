@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourSpace</title>
+    <title>TaskFlow — Board</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app">
         <aside class="sidebar">
-            <h1 class="brand">Your<span>Space</span></h1>
+            <h1 class="brand">Task<span>Flow</span></h1>
             <nav class="nav">
                 <a href="dashboard.html" class="active">Board</a>
                 <a href="#" data-roles="manager,superadmin">Stats</a>
@@ -32,11 +32,109 @@
                 <h2>Board</h2>
                 <button class="btn-small" id="new-task">+ New task</button>
             </div>
+
             <div class="board" id="board"></div>
+
+            <section class="task-list-section">
+                <div class="controls">
+                    <input id="search" type="text" placeholder="Search tasks…">
+                    <select id="filter-priority">
+                        <option value="">All priorities</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="task-list" id="task-list"></div>
+            </section>
         </main>
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <div class="modal-backdrop hidden" id="modal-backdrop">
+        <div class="modal">
+            <h3>New task</h3>
+            <form id="task-form">
+                <label for="t-title">Title</label>
+                <input id="t-title" type="text" required>
+
+                <label for="t-desc">Description</label>
+                <textarea id="t-desc" rows="3"></textarea>
+
+                <div class="row">
+                    <div>
+                        <label for="t-priority">Priority</label>
+                        <select id="t-priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="t-category">Category</label>
+                        <input id="t-category" type="text">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="t-due">Due date</label>
+                        <input id="t-due" type="date">
+                    </div>
+                    <div>
+                        <label for="t-assignee">Assignee ID (blank = me)</label>
+                        <input id="t-assignee" type="number">
+                    </div>
+                </div>
+
+                <p class="error" id="task-error"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn-ghost" id="modal-cancel">Cancel</button>
+                    <button type="submit" class="btn">Create task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="detail-backdrop">
+        <div class="modal">
+            <h3 id="d-title">Task</h3>
+            <p id="d-meta" class="subtitle"></p>
+            <p id="d-desc"></p>
+
+            <div id="review-box" class="hidden">
+                <label for="d-review-comment">Review comment</label>
+                <textarea id="d-review-comment" rows="2"></textarea>
+                <div class="review-actions">
+                    <button class="btn-small" data-decision="approved">Approve</button>
+                    <button class="btn-small warn" data-decision="change_requested">Request changes</button>
+                    <button class="btn-small danger" data-decision="declined">Decline</button>
+                </div>
+            </div>
+
+            <h4>Checklist</h4>
+            <div id="d-checklist"></div>
+            <form id="checklist-form" class="inline-form">
+                <input id="d-item-text" type="text" placeholder="Add item…">
+                <button class="btn-small" type="submit">Add</button>
+            </form>
+
+            <h4>Comments</h4>
+            <div id="d-comments"></div>
+            <form id="comment-form" class="inline-form">
+                <input id="d-comment-text" type="text" placeholder="Write a comment…">
+                <button class="btn-small" type="submit">Post</button>
+            </form>
+
+            <p class="error" id="d-error"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="detail-close">Close</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/api.js"></script>
     <script src="js/dashboard.js"></script>
