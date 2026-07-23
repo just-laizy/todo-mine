@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow — Board</title>
+    <title>Your Space — Board</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app">
         <aside class="sidebar">
-            <h1 class="brand">Task<span>Flow</span></h1>
+            <h1 class="brand">Your<span>Space</span></h1>
             <nav class="nav">
                 <a href="dashboard.html" class="active">Board</a>
-                <a href="#" data-roles="manager,superadmin">Stats</a>
-                <a href="#" data-roles="superadmin">Users</a>
-                <a href="#" data-roles="superadmin">Teams</a>
-                <a href="#" data-roles="superadmin">Audit log</a>
+                <a href="tasks.html">Tasks</a>
+                <a href="stats.html" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" data-roles="superadmin">Teams</a>
+                <a href="audit.html" data-roles="superadmin">Audit log</a>
             </nav>
             <div class="user-chip">
                 <div class="avatar" id="avatar">…</div>
@@ -132,6 +133,7 @@
             <p class="error" id="d-error"></p>
             <div class="modal-actions">
                 <button type="button" class="btn-ghost" id="detail-close">Close</button>
+                <button type="button" class="btn-small danger" id="detail-delete">Delete task</button>
             </div>
         </div>
     </div>

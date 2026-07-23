@@ -16,6 +16,7 @@ class UserResponse(BaseModel):
     name : NameStr
     email : EmailStr
     role : str
+    team_id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):

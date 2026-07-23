@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Space — Tasks</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Your<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html">Board</a>
+                <a href="tasks.html" class="active">Tasks</a>
+                <a href="stats.html" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" data-roles="superadmin">Teams</a>
+                <a href="audit.html" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head"><h2>Tasks</h2></div>
+
+            <div class="summary-strip" id="summary"></div>
+
+            <div class="controls">
+                <input id="search" type="text" placeholder="Search title…">
+                <input id="filter-category" type="text" placeholder="Category…">
+                <select id="filter-priority">
+                    <option value="">All priorities</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <button class="btn-ghost btn-inline" id="clear-filters">Clear</button>
+            </div>
+
+            <div id="groups"></div>
+        </main>
+    </div>
+
+    <div class="bulk-bar hidden" id="bulk-bar">
+        <span id="bulk-count">0 selected</span>
+        <select id="bulk-status">
+            <option value="">Move to…</option>
+            <option value="todo">To do</option>
+            <option value="in_progress">In progress</option>
+            <option value="pending_review">Pending review</option>
+            <option value="done">Done</option>
+        </select>
+        <button class="btn-small" id="bulk-apply">Apply</button>
+        <button class="btn-small danger" id="bulk-delete">Delete</button>
+        <button class="btn-ghost btn-inline" id="bulk-clear">Cancel</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/tasks.js"></script>
+</body>
+</html>

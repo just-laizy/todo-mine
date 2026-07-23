@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Space — Stats</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Your<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html">Board</a>
+                <a href="tasks.html">Tasks</a>
+                <a href="stats.html" class="active" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" data-roles="superadmin">Teams</a>
+                <a href="audit.html" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head"><h2>Stats</h2></div>
+
+            <h4 class="section-title">Tasks by status</h4>
+            <div class="stat-grid" id="board-stats"></div>
+
+            <h4 class="section-title">Leaderboard</h4>
+            <div class="controls">
+                <input id="from-date" type="date">
+                <input id="to-date" type="date">
+                <button class="btn-small" id="apply-range">Apply</button>
+            </div>
+            <div class="task-list" id="leaderboard"></div>
+
+            <h4 class="section-title">Team members</h4>
+            <div class="task-list" id="team-stats"></div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/stats.js"></script>
+</body>
+</html>

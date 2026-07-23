@@ -79,7 +79,7 @@ def handle_status(request,exc):
 @app.exception_handler(NotAllowed)
 def handle_notallowed(request,exc):
     return JSONResponse(
-        status_code=401, 
+        status_code=403, 
         content={'detail' : 'I dont know who you are'}
     )
 @app.exception_handler(TeamNotFound)

@@ -73,41 +73,56 @@ class TaskService:
         self.activity_repository.create(current_user.id, "task.created", f"task {task.id}: {task.title}")# type: ignore
         return task
     
-    def list_tasks(self,status, category, assignee_id, assigner_id , search, current_user : User ):
-        if current_user.role == UserRole.SUPERADMIN:#type: ignore
+    def list_tasks(self, status, category, assignee_id, assigner_id, search, current_user: User):
+        if current_user.role == UserRole.SUPERADMIN: # type: ignore
             team_id = None
-        else :
+        elif current_user.team_id is None:
+            team_id = None
+            assignee_id = current_user.id
+        else:
             team_id = current_user.team_id
-        tasks = self.task_repository.get_all(status, category, assignee_id,assigner_id,search, team_id=team_id)
+
+        tasks = self.task_repository.get_all(
+            status, category, assignee_id, assigner_id, search, team_id=team_id
+        )
         return tasks
-    def get_board(self , current_user = User) -> dict[TaskStatus , list[Task]]:
-        if current_user.role == UserRole.SUPERADMIN:#type: ignore
+    def get_board(self, current_user: User) -> dict[TaskStatus, list[Task]]:
+        assignee_id = None
+        if current_user.role == UserRole.SUPERADMIN: # type: ignore
             team_id = None
-        else :
+        elif current_user.team_id is None:
+            team_id = None
+            assignee_id = current_user.id
+        else:
             team_id = current_user.team_id
-        tasks = self.task_repository.get_all(team_id=team_id)
-        board = {status : [] for status in TaskStatus}
+
+        tasks = self.task_repository.get_all(team_id=team_id, assignee_id=assignee_id)
+        board = {status: [] for status in TaskStatus}
         for task in tasks:
-            task_status = TaskStatus(task.status)
-            board[task_status].append(task)
+            board[task.status].append(task) # type: ignore
         return board
     
-    def get_task(self,task_id : int, current_user = User) -> Task:
+    def get_task(self, task_id: int, current_user: User) -> Task:
         task = self.task_repository.get_by_id(task_id)
         if task is None:
             raise TaskNotFound()
-        if current_user.role != UserRole.SUPERADMIN and task.team_id != current_user.team_id:#type: ignore
-            raise TaskNotFound()
+
+        if current_user.role != UserRole.SUPERADMIN:
+            same_team = task.team_id == current_user.team_id
+            is_assignee = task.assignee_id == current_user.id
+            if not (same_team or is_assignee):
+                raise TaskNotFound()
+
         return task
     
 
-    def change_status(self, task_id : int, new_status : TaskStatus,current_user = User) -> Task:
+    def change_status(self, task_id : int, new_status : TaskStatus,current_user : User) -> Task:
         task = self.get_task(task_id,current_user)
         if new_status not in AlLOWED_TRANSITIONS[task.status]: # type: ignore
             raise InvalidStatusTransition()
         return self.task_repository.update_status(task,new_status)
     
-    def update_task(self,task_id : int, data : TaskUpdate,current_user = User):
+    def update_task(self,task_id : int, data : TaskUpdate,current_user : User):
         task = self.get_task(task_id,current_user)
         if data.title is not None:
             task.title = data.title  # type: ignore
@@ -125,7 +140,7 @@ class TaskService:
             task.assignee_id = data.assignee_id  # type: ignore
         return self.task_repository.update(task)
     
-    def delete_task(self,task_id : int,current_user = User):
+    def delete_task(self,task_id : int,current_user : User):
         task=self.get_task(task_id,current_user)
         self.task_repository.delete(task)
 

@@ -97,7 +97,7 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .app { display: flex; min-height: 100vh; }
 
 .sidebar {
-    width: 230px;
+    width: 260px;
     background: var(--surface);
     border-right: 1px solid var(--border);
     display: flex;
@@ -360,3 +360,114 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .review-actions .btn-small { flex: 1; }
 .btn-small.warn   { background: #b45309; }
 .btn-small.danger { background: var(--danger); }
+
+.section-title {
+    margin: 2rem 0 0.8rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+}
+.stat-card .num { font-size: 2rem; font-weight: 700; }
+.stat-card .lbl {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+}
+.rank { width: 28px; color: var(--text-dim); font-weight: 700; }
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+}
+.table th:hover { color: var(--text); }
+.table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+.table tbody tr { cursor: pointer; }
+.table tbody tr:hover { background: var(--surface); }
+.table tr.overdue td:first-child { border-left: 3px solid var(--danger); }
+.due-late { color: var(--danger); font-weight: 600; }
+
+.summary-strip { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.7rem 1.1rem;
+    cursor: pointer;
+    min-width: 120px;
+}
+.chip:hover { border-color: var(--accent); }
+.chip.active { border-color: var(--accent); background: var(--surface-2); }
+.chip .num { font-size: 1.5rem; font-weight: 700; }
+.chip .lbl {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-dim); margin-top: 0.15rem;
+}
+.chip.danger .num { color: var(--danger); }
+
+.btn-inline { width: auto; flex: none; padding: 0.7rem 1rem; }
+
+.group { margin-bottom: 1.5rem; }
+.group-head {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0; cursor: pointer;
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-dim);
+}
+.group-head .caret { transition: transform 0.15s; }
+.group.collapsed .caret { transform: rotate(-90deg); }
+.group.collapsed .group-body { display: none; }
+.group-head .count {
+    background: var(--surface-2); border-radius: 999px;
+    padding: 0.1rem 0.55rem; font-size: 0.7rem;
+}
+.group.urgent .group-head { color: var(--danger); }
+
+.trow {
+    display: flex; align-items: center; gap: 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem 1rem; margin-bottom: 0.45rem;
+}
+.trow:hover { border-color: var(--accent); }
+.trow.selected { background: var(--surface-2); border-color: var(--accent); }
+.trow input[type="checkbox"] { width: 17px; height: 17px; flex: none; accent-color: var(--accent); cursor: pointer; }
+.trow .ttitle { flex: 1; font-weight: 600; }
+.trow .tmeta { color: var(--text-dim); font-size: 0.8rem; min-width: 90px; }
+.trow .tdue.late { color: var(--danger); font-weight: 600; }
+
+.bulk-bar {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.75rem;
+    background: var(--surface-2); border: 1px solid var(--accent);
+    border-radius: var(--radius); padding: 0.7rem 1rem; z-index: 40;
+}
+.bulk-bar select { width: auto; }
+.bulk-bar.hidden { display: none; }

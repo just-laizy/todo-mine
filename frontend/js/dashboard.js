@@ -34,6 +34,7 @@ function renderCard(task) {
     card.className = "card";
     card.draggable = true;
     card.dataset.taskId = task.id;
+    card.dataset.status = task.status; 
 
     const title = document.createElement("div");
     title.className = "title";
@@ -90,6 +91,7 @@ async function loadBoard() {
             const dragged = document.querySelector(".card.dragging");
             if (!dragged) return;
             try {
+                if (dragged.dataset.status === column.key) return;
                 await api("/tasks/" + dragged.dataset.taskId + "/status", {
                     method: "PATCH",
                     body: JSON.stringify({ status: column.key }),
@@ -339,6 +341,15 @@ document.querySelectorAll("#review-box  .btn-small").forEach((btn) => {
         } catch (err) { dError.textContent = err.message; }
     });
 });
-
+document.getElementById("detail-delete").addEventListener("click", async () => {
+    if (!confirm("Delete this task? This cannot be undone.")) return;
+    try {
+        await api("/tasks/" + openTaskId, { method: "DELETE" });
+        closeDetail();
+        loadBoard();
+    } catch (err) {
+        dError.textContent = err.message;
+    }
+});
 loadMe();
 loadBoard();

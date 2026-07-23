@@ -39,8 +39,8 @@ def create_task(
     )
 @router.get('/', response_model=list[TaskResponse])
 def get_tasks(
-    search : str | None,
-    status : TaskStatus | None,
+    search : str | None = None,
+    status : TaskStatus | None  =None,
     category : str | None = None,
     assignee_id : int |None = None,
     assigner_id : int |None = None,
