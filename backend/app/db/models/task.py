@@ -1,7 +1,7 @@
 from sqlalchemy import Column,String,Integer,DateTime, Date,ForeignKey
 from sqlalchemy import Enum as SAEnum 
 from sqlalchemy.orm import relationship
-from app.domain.enums import TaskStatus, TaskPriority
+from app.domain.enums import TaskStatus, TaskPriority , TaskCategory
 from app.db.base import Base
 from datetime import datetime
 class Task(Base):
@@ -11,7 +11,7 @@ class Task(Base):
     description = Column(String(1000)) 
     status = Column(SAEnum(TaskStatus), default=TaskStatus.TODO)
     priority = Column(SAEnum(TaskPriority), default=TaskPriority.LOW) 
-    category = Column(String(50)) 
+    category = Column(SAEnum(TaskCategory), default=TaskCategory.BACKEND, nullable=False)
     due_date = Column(DateTime, nullable=True) 
     assignee_id = Column(Integer, ForeignKey('users.id'))
     assigner_id = Column(Integer, ForeignKey('users.id'))

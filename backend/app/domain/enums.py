@@ -21,3 +21,10 @@ class ReviewDecision(str , Enum):
     APPROVED = 'approved'
     CHANGES_REQUESTED = 'change_requested'
     DECLINED = 'declined' 
+    
+class TaskCategory(str, Enum):
+    UI_UX = "ui_ux"
+    FRONTEND = "frontend"
+    BACKEND = "backend"
+    MOBILE = "mobile"
+    DEVOPS = "devops"

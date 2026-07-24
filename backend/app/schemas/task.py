@@ -1,12 +1,12 @@
 from pydantic import BaseModel, ConfigDict
-from app.domain.enums import TaskPriority,TaskStatus, ReviewDecision
+from app.domain.enums import TaskPriority,TaskStatus, ReviewDecision, TaskCategory
 from datetime import date,datetime
 
 class TaskCreate(BaseModel):
     title : str
     description : str
     priority : TaskPriority
-    category : str
+    category : TaskCategory
     due_date : date | None = None
     assignee_id : int | None = None
 
@@ -16,22 +16,23 @@ class TaskResponse(BaseModel):
     description : str
     status : TaskStatus
     priority : TaskPriority
-    category : str
+    category : TaskCategory
     due_date : date | None = None
     assignee_id : int | None = None
     assigner_id : int 
     created_at : datetime
     done_at : datetime | None= None
+    updated_at: datetime | None = None
     model_config = ConfigDict(from_attributes=True)
 
 class TaskStatusUpdate(BaseModel):
     status : TaskStatus
 
 class TaskUpdate(BaseModel):
-    title : str | None =None
-    description : str | None =None
-    priority : TaskPriority | None =None
-    category : str | None =None
+    title : str | None = None
+    description : str | None = None
+    priority : TaskPriority | None = None
+    category : TaskCategory | None = None
     due_date : date | None = None
     assignee_id : int | None = None
 

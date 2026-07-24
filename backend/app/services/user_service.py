@@ -4,7 +4,7 @@ from app.repositories.activity_repository import ActivityRepository
 from app.core.exceptions import UserNotFound, NotAllowed
 from app.schemas.user import UserUpdate
 from app.db.models.user import User
-
+from app.domain.enums import UserRole
 
 class UserService:
     def __init__(
@@ -30,3 +30,13 @@ class UserService:
             user.team_id = data.team_id
         self.activity_repository.create(current_user.id, "user.updated", f"user {user_id} changed")
         return self.user_repository.update(user)
+
+    def assignable_users(self, current_user: User) -> list[User]:
+        if current_user.role == UserRole.SUPERADMIN:
+            return self.user_repository.get_all()
+        if current_user.team_id is None:
+            return [current_user]
+        members = self.user_repository.get_by_team(current_user.team_id)
+        if current_user.role == UserRole.MANAGER:
+            return members
+        return [m for m in members if m.role == UserRole.USER]

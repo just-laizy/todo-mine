@@ -13,6 +13,7 @@ from app.api.routes.teams import router as team_router
 from app.api.routes.checklist import router as checklist_router
 from app.api.routes.stats import router as stats_router
 from app.api.routes.admin import router as admin_router
+from app.api.routes.users import router as user_router
 
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -41,7 +42,8 @@ app.include_router(checklist_router)
 app.include_router(task_router)
 app.include_router(team_router)
 app.include_router(stats_router)
-app.include_router(admin_router )
+app.include_router(admin_router )   
+app.include_router(user_router)   
 frontend_dir = Path(__file__).parent.parent.parent / "frontend"
 app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 

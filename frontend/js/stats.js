@@ -8,6 +8,13 @@ const STATUS_LABELS = {
 };
 
 let me = null;
+const userNames = new Map();
+
+async function loadNames() {
+    const users = await api("/users/assignable");
+    users.forEach((u) => userNames.set(u.id, u.name));
+}
+function nameOf(id) { return userNames.get(id) || ("User " + id); }
 
 async function loadMe() {
     me = await api("/auth/me");
@@ -71,7 +78,7 @@ async function loadLeaderboard() {
 
         const who = document.createElement("span");
         who.className = "t-title";
-        who.textContent = "User " + entry.assignee_id;
+        who.textContent = nameOf(entry.assignee_id);
 
         const count = document.createElement("span");
         count.className = "badge medium";
@@ -96,7 +103,7 @@ async function loadTeamStats(teamId) {
 
             const who = document.createElement("span");
             who.className = "t-title";
-            who.textContent = "User " + member.user_id;
+            who.textContent = "User " + nameOf(member.user_id);
 
             const done = document.createElement("span");
             done.className = "t-status";
@@ -128,6 +135,12 @@ document.getElementById("logout").addEventListener("click", () => {
     window.location.href = "index.html";
 });
 
-loadMe();
+async function boot() {
+    await loadNames();
+    loadMe();
+    loadBoardStats();
+    loadLeaderboard();
+}
+boot();
 loadBoardStats();
 loadLeaderboard();

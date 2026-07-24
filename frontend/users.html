@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OjakSpace — Users</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Ojak<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html">Board</a>
+                <a href="tasks.html">Tasks</a>
+                <a href="stats.html" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" class="active" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" data-roles="superadmin">Teams</a>
+                <a href="audit.html" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head"><h2>Users</h2></div>
+
+            <div class="summary-strip" id="user-summary"></div>
+
+            <div class="controls">
+                <input id="search" type="text" placeholder="Search name or email…">
+                <select id="filter-role">
+                    <option value="">All roles</option>
+                    <option value="user">User</option>
+                    <option value="manager">Manager</option>
+                    <option value="superadmin">Superadmin</option>
+                </select>
+            </div>
+
+            <div class="task-list" id="user-list"></div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-backdrop hidden" id="edit-backdrop">
+        <div class="modal">
+            <h3 id="e-title">Edit user</h3>
+            <div class="d-sub" id="e-sub"></div>
+
+            <label for="e-role">Role</label>
+            <select id="e-role">
+                <option value="user">User</option>
+                <option value="manager">Manager</option>
+                <option value="superadmin">Superadmin</option>
+            </select>
+
+            <label for="e-team">Team</label>
+            <select id="e-team"></select>
+
+            <label for="e-status">Status</label>
+            <select id="e-status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+
+            <p class="error" id="e-error"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="e-cancel">Cancel</button>
+                <button type="button" class="btn" id="e-save">Save changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/users.js"></script>
+</body>
+</html>

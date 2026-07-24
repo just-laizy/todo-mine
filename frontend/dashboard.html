@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Space — Board</title>
+    <title>OjakSpace — Board</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app">
         <aside class="sidebar">
-            <h1 class="brand">Your<span>Space</span></h1>
+            <h1 class="brand">Ojak<span>Space</span></h1>
             <nav class="nav">
                 <a href="dashboard.html" class="active">Board</a>
                 <a href="tasks.html">Tasks</a>
@@ -76,7 +76,13 @@
                     </div>
                     <div>
                         <label for="t-category">Category</label>
-                        <input id="t-category" type="text">
+                        <select id="t-category">
+                            <option value="ui_ux">UI/UX</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="backend" selected>Backend</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="devops">DevOps</option>
+                        </select>
                     </div>
                 </div>
 
@@ -86,8 +92,8 @@
                         <input id="t-due" type="date">
                     </div>
                     <div>
-                        <label for="t-assignee">Assignee ID (blank = me)</label>
-                        <input id="t-assignee" type="number">
+                        <label for="t-assignee">Assign to</label>
+                        <select id="t-assignee"></select>
                     </div>
                 </div>
 
@@ -103,7 +109,8 @@
     <div class="modal-backdrop hidden" id="detail-backdrop">
         <div class="modal">
             <h3 id="d-title">Task</h3>
-            <p id="d-meta" class="subtitle"></p>
+            <div class="d-pills" id="d-pills"></div>
+            <div class="d-sub" id="d-sub"></div>
             <p id="d-desc"></p>
 
             <div id="review-box" class="hidden">
@@ -131,9 +138,19 @@
             </form>
 
             <p class="error" id="d-error"></p>
-            <div class="modal-actions">
+                        <div class="modal-actions">
                 <button type="button" class="btn-ghost" id="detail-close">Close</button>
                 <button type="button" class="btn-small danger" id="detail-delete">Delete task</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="column-backdrop">
+        <div class="modal">
+            <h3 id="column-title">Column</h3>
+            <div class="task-list" id="column-list"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="column-close">Close</button>
             </div>
         </div>
     </div>

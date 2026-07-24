@@ -14,7 +14,7 @@ from app.services.task_service import TaskService
 from app.schemas.task import TaskResponse, TaskStatusUpdate,TaskUpdate, TaskCreate,ReviewCreate
 from app.schemas.checklistItem import ChecklistItemResponse, ChecklistItemCreate
 from app.api.deps import get_current_user,get_task_service
-from app.domain.enums import TaskPriority,TaskStatus
+from app.domain.enums import TaskPriority,TaskStatus, TaskCategory
 
 
 
@@ -40,8 +40,8 @@ def create_task(
 @router.get('/', response_model=list[TaskResponse])
 def get_tasks(
     search : str | None = None,
-    status : TaskStatus | None  =None,
-    category : str | None = None,
+    status : TaskStatus | None  = None,
+    category : TaskCategory | None = None,
     assignee_id : int |None = None,
     assigner_id : int |None = None,
     session : Session = Depends(get_db),

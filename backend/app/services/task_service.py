@@ -11,9 +11,9 @@ from app.domain.enums import TaskStatus, TaskPriority
 from datetime import date
 from app.core.exceptions import InvalidStatusTransition,TaskNotFound, NotAllowed,CommentRequired
 from app.schemas.task import TaskUpdate
-from app.domain.enums import UserRole,ReviewDecision
+from app.domain.enums import UserRole,ReviewDecision,TaskCategory
 
-AlLOWED_TRANSITIONS = {
+ALLOWED_TRANSITIONS = {
     TaskStatus.TODO :{TaskStatus.IN_PROGRESS},
     TaskStatus.IN_PROGRESS : {TaskStatus.PENDING_REVIEW},
     TaskStatus.PENDING_REVIEW : {TaskStatus.IN_PROGRESS},
@@ -53,10 +53,10 @@ class TaskService:
     ) -> Task:
         if assignee_id is None:
             assignee_id = current_user.id #type: ignore
-        assignee = self.user_repository.get_by_id(assignee_id)#type:ignore
-        if assignee is None:  
+        assignee = self.user_repository.get_by_id(assignee_id) # type: ignore
+        if assignee is None:
             raise AssigneeNotFound()
-        if assignee_id != current_user.id and current_user.role == UserRole.USER: # type: ignore
+        if not self.can_assign_to(current_user, assignee):
             raise NotAllowed()
         if current_user.role == UserRole.MANAGER and assignee.team_id != current_user.team_id: # type: ignore
             raise NotAllowed()
@@ -107,20 +107,27 @@ class TaskService:
         if task is None:
             raise TaskNotFound()
 
-        if current_user.role != UserRole.SUPERADMIN:
+        if current_user.role != UserRole.SUPERADMIN: # type: ignore
             same_team = task.team_id == current_user.team_id
             is_assignee = task.assignee_id == current_user.id
-            if not (same_team or is_assignee):
+            if not (same_team or is_assignee): # type: ignore
                 raise TaskNotFound()
 
         return task
-    
 
-    def change_status(self, task_id : int, new_status : TaskStatus,current_user : User) -> Task:
-        task = self.get_task(task_id,current_user)
-        if new_status not in AlLOWED_TRANSITIONS[task.status]: # type: ignore
+    def change_status(self, task_id: int, new_status: TaskStatus, current_user: User) -> Task:
+        task = self.get_task(task_id, current_user)
+
+        if new_status not in ALLOWED_TRANSITIONS[task.status]: # type: ignore
             raise InvalidStatusTransition()
-        return self.task_repository.update_status(task,new_status)
+        
+        if task.status == TaskStatus.PENDING_REVIEW: # type: ignore
+            is_team_manager = (current_user.role == UserRole.MANAGER and current_user.team_id == task.team_id)
+            is_superadmin = current_user.role == UserRole.SUPERADMIN
+            if not (is_team_manager or is_superadmin): # type: ignore
+                raise NotAllowed()
+
+        return self.task_repository.update_status(task, DECISION_OUTCOMES.get(new_status, new_status)) # type: ignore
     
     def update_task(self,task_id : int, data : TaskUpdate,current_user : User):
         task = self.get_task(task_id,current_user)
@@ -225,4 +232,13 @@ class TaskService:
         self.get_task(item.task_id,current_user=current_user)# type: ignore
         self.checklist_repository.delete_item(item)
 
-
+    def can_assign_to(self, current_user: User, assignee: User) -> bool:
+        if current_user.role == UserRole.SUPERADMIN: # type: ignore
+            return True
+        if assignee.id == current_user.id: # type: ignore
+            return True                                   
+        if current_user.team_id is None or assignee.team_id != current_user.team_id: # type: ignore
+            return False                                  
+        if current_user.role == UserRole.MANAGER: # type: ignore
+            return True                                   
+        return assignee.role == UserRole.USER              # type: ignore
