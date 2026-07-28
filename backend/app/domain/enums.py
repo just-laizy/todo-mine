@@ -28,3 +28,7 @@ class TaskCategory(str, Enum):
     BACKEND = "backend"
     MOBILE = "mobile"
     DEVOPS = "devops"
+
+class UserStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"

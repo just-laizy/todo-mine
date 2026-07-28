@@ -22,6 +22,6 @@ class ActivityRepository:
             self,
             limit : int = 50
     ) -> list[Activity]:
-        statement = (select(Activity).order_by(Activity.created_at.desc()).limit(limit))
+        statement = (select(Activity).order_by(Activity.id.desc()).limit(limit))
         return list(self.session.execute(statement).scalars().all())
     

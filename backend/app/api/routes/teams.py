@@ -54,4 +54,12 @@ def delete_member(
     service : TeamService = Depends (get_team_service)
 ):
     return service.remove_member(team_id,user_id,current_user)
-    
+
+
+@router.delete("/{team_id}", status_code=204)
+def delete_team(
+    team_id: int,
+    service: TeamService = Depends(get_team_service),
+    current_user: User = Depends(get_current_user),
+):
+    service.delete_team(team_id, current_user)

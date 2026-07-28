@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OjakSpace — Teams</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Ojak<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html">Board</a>
+                <a href="tasks.html">Tasks</a>
+                <a href="stats.html" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" class="active" data-roles="superadmin">Teams</a>
+                <a href="audit.html" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head">
+                <h2>Teams</h2>
+                <button class="btn-small" id="new-team">+ New team</button>
+            </div>
+            <div class="summary-strip" id="team-summary"></div>
+            <div class="team-grid" id="team-grid"></div>
+
+            <h4 class="section-title">Team performance</h4>
+            <div id="team-performance"></div>
+
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-backdrop hidden" id="detail-backdrop">
+        <div class="modal modal-wide">
+            <div class="team-accent" id="t-accent"></div>
+            <h3 id="t-name">Team</h3>
+            <div class="d-sub" id="t-manager"></div>
+
+            <div class="stat-grid" id="t-stats"></div>
+
+            <h4>Members &amp; workload</h4>
+            <div id="t-members"></div>
+
+            <h4>Add member</h4>
+            <div class="controls">
+                <select id="t-add-select"></select>
+                <button class="btn-small" id="t-add-btn">Add</button>
+            </div>
+
+            <p class="error" id="t-error"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="detail-close">Close</button>
+                <button type="button" class="btn-small danger" id="delete-team">Delete team</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="create-backdrop">
+        <div class="modal">
+            <h3>New team</h3>
+            <label for="c-name">Team name</label>
+            <input id="c-name" type="text">
+            <p class="error" id="c-error"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="c-cancel">Cancel</button>
+                <button type="button" class="btn" id="c-save">Create</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="js/api.js"></script>
+    <script src="js/teams.js"></script>
+</body>
+</html>

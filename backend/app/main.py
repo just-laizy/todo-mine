@@ -22,18 +22,18 @@ import mimetypes
 mimetypes.add_type("text/css", ".css")
 mimetypes.add_type("application/javascript", ".js")
 
-app = FastAPI(title="Task Manager API")
+app = FastAPI(title="Ojak")
 
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://127.0.0.1:5500", "http://localhost:5500"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 Base.metadata.create_all(bind = engine)
 
@@ -43,9 +43,7 @@ app.include_router(task_router)
 app.include_router(team_router)
 app.include_router(stats_router)
 app.include_router(admin_router )   
-app.include_router(user_router)   
-frontend_dir = Path(__file__).parent.parent.parent / "frontend"
-app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+app.include_router(user_router)
 
 
 @app.exception_handler(EmailAlreadyRegistered)
@@ -81,8 +79,8 @@ def handle_status(request,exc):
 @app.exception_handler(NotAllowed)
 def handle_notallowed(request,exc):
     return JSONResponse(
-        status_code=403, 
-        content={'detail' : 'I dont know who you are'}
+        status_code=403,
+        content={'detail' : str(exc) or 'You are not allowed to do that'}
     )
 @app.exception_handler(TeamNotFound)
 def handle_team(request,exc):
@@ -108,3 +106,7 @@ def handle_too_many_attempts(request, exc):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+# frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+# app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

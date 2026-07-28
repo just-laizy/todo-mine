@@ -14,7 +14,7 @@ async function loadNames() {
     const users = await api("/users/assignable");
     users.forEach((u) => userNames.set(u.id, u.name));
 }
-function nameOf(id) { return userNames.get(id) || ("User " + id); }
+function nameOf(id) { return userNames.get(id) || ( id); }
 
 async function loadMe() {
     me = await api("/auth/me");
@@ -103,7 +103,7 @@ async function loadTeamStats(teamId) {
 
             const who = document.createElement("span");
             who.className = "t-title";
-            who.textContent = "User " + nameOf(member.user_id);
+            who.textContent = nameOf(member.user_id);
 
             const done = document.createElement("span");
             done.className = "t-status";

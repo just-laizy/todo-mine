@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OjakSpace — Audit log</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1 class="brand">Ojak<span>Space</span></h1>
+            <nav class="nav">
+                <a href="dashboard.html">Board</a>
+                <a href="tasks.html">Tasks</a>
+                <a href="stats.html" data-roles="manager,superadmin">Stats</a>
+                <a href="users.html" data-roles="manager,superadmin">Users</a>
+                <a href="teams.html" data-roles="superadmin">Teams</a>
+                <a href="audit.html" class="active" data-roles="superadmin">Audit log</a>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="avatar">…</div>
+                <div class="who">
+                    <div id="me-name">…</div>
+                    <small id="me-role">…</small>
+                </div>
+                <button class="logout" id="logout" title="Sign out">⎋</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-head"><h2>Audit log</h2></div>
+
+            <div class="summary-strip" id="audit-summary"></div>
+
+            <div class="controls">
+                <input id="search" type="text" placeholder="Search details…">
+                <select id="filter-action">
+                    <option value="">All actions</option>
+                    <option value="task.created">Task created</option>
+                    <option value="task.reviewed">Task reviewed</option>
+                    <option value="team.member_added">Member added</option>
+                    <option value="team.member_removed">Member removed</option>
+                    <option value="user.updated">User updated</option>
+                </select>
+            </div>
+
+            <div class="audit-feed" id="audit-feed"></div>
+            <button class="show-more" id="load-more">Load more</button>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/audit.js"></script>
+</body>
+</html>

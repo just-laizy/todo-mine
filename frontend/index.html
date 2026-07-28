@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,6 +31,55 @@
 
                 <p class="error" id="error"></p>
                 <button class="btn" id="submit" type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OjakSpace — Sign in</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <h1 class="brand">Ojak<span>Space</span></h1>
+            <p class="subtitle">Task management system</p>
+
+            <div class="tabs">
+                <button class="tab active" id="tab-signin" type="button">Sign in</button>
+                <button class="tab" id="tab-signup" type="button">Create account</button>
+            </div>
+
+            <form id="auth-form">
+                <!-- Sign-up only: display name -->
+                <div id="name-field" class="hidden">
+                    <label for="name">Name</label>
+                    <input id="name" type="text" autocomplete="name" placeholder="Your name">
+                </div>
+
+                <!-- Step 1: Gmail Input -->
+                <div id="email-field">
+                    <label for="email">Gmail Address</label>
+                    <input id="email" type="email" required autocomplete="email" placeholder="name@gmail.com">
+                </div>
+
+                <!-- Step 2: OTP Input (Hidden initially) -->
+                <div id="otp-field" class="hidden">
+                    <label for="password">6-Digit OTP Code</label>
+                    <input id="password" type="text" maxlength="6" placeholder="123456" autocomplete="one-time-code">
+                </div>
+
+                <p class="error" id="error"></p>
+                <button class="btn" id="submit" type="submit">Send OTP Code</button>
             </form>
         </div>
     </div>

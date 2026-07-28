@@ -9,7 +9,7 @@ from app.repositories.team_repository import TeamRepository
 from app.repositories.activity_repository import ActivityRepository
 from app.schemas.user import UserResponse, UserUpdate
 from app.schemas.team import TeamResponse
-from app.domain.enums import UserRole
+from app.domain.enums import UserRole, UserStatus
 from app.services.user_service import UserService
 
 from app.schemas.admin import AuditEntry
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 def list_users(
     role: UserRole | None = None,
     team_id: int | None = None,
-    status: str | None = None,
+    status: UserStatus | None = None,
     session: Session = Depends(get_db),
     current_user: User = Depends(require_superadmin),
 ):

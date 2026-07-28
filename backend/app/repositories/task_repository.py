@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select,update  
 from app.db.models import Task
 from datetime import date
 from app.domain.enums import TaskStatus
 from datetime import datetime
+
 
 class TaskRepository:
     def __init__(self, session:Session):
@@ -62,14 +63,20 @@ class TaskRepository:
         self.session.commit()
         self.session.refresh(task)
         return task 
+
     def update(self,task :Task) ->Task:
         self.session.commit()
         self.session.refresh(task)
         return task
+
     def delete(self,task :Task) ->None:
         delete = self.session.delete(task)
         self.session.commit()
     
-        
+    def get_collaborating(self, user_id: int) -> list[Task]:
+        statement = select(Task).where(Task.collaborators.any(id=user_id))
+        return list(self.session.execute(statement).scalars().all())
 
-
+    def clear_team(self, team_id: int) -> None:
+        self.session.execute(update(Task).where(Task.team_id == team_id).values(team_id=None))
+        self.session.commit()

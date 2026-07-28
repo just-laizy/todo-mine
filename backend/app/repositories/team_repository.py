@@ -22,4 +22,7 @@ class TeamRepository:
         return team 
     def get_all(self) ->list[Team]:
         return list(self.session.execute(select(Team)).scalars().all())
-    
+
+    def delete(self, team) -> None:
+        self.session.delete(team)
+        self.session.commit()

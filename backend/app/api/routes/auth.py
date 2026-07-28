@@ -1,33 +1,39 @@
-from fastapi import APIRouter,Depends
-from sqlalchemy.orm import Session
-
-from app.db.session import get_db
-from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate,UserResponse
-from app.services.auth_service import AuthService
-from fastapi.security import OAuth2PasswordRequestForm
 from app.api.deps import get_current_user
 from app.db.models import User
 
+from fastapi import APIRouter, BackgroundTasks, Depends
+from app.schemas.user import RegisterUser, RequestOTP, VerifyOTP
+from app.services.auth_service import AuthService
+from app.api.deps import get_auth_service
 
-router = APIRouter(prefix='/auth', tags=['auth'])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post('/register' , response_model=UserResponse, status_code=201)
-def register(data: UserCreate, session : Session = Depends(get_db)):
-    service = AuthService(UserRepository(session))
-    return service.register(data.name, data.email,data.password)
-
-@router.post('/login')
-def login(
-    form : OAuth2PasswordRequestForm = Depends(), 
-    session : Session = Depends(get_db)
+@router.post("/register")
+def register(
+    payload: RegisterUser,
+    background_tasks: BackgroundTasks,
+    auth_service: AuthService = Depends(get_auth_service)
 ):
-    service = AuthService(UserRepository(session))
-    token = service.login(form.username, form.password)
-    return {"access_token" : token, "token_type" : "bearer"}
+    auth_service.register(payload.name, payload.email, background_tasks)
+    return {"message": "OTP sent to your email"}
 
-@router.get('/me', response_model=UserResponse)
-def current_user(user : User = Depends(get_current_user)):
-    return user
+@router.post("/request-otp")
+def request_otp(
+    payload: RequestOTP,
+    background_tasks: BackgroundTasks,
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    auth_service.generate_and_send_otp(payload.email, background_tasks)
+    return {"message": "OTP sent to your email"}
 
+@router.post("/verify-otp")
+def verify_otp(
+    payload: VerifyOTP,
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return auth_service.verify_otp(email=payload.email, code=payload.code)
 
+@router.get("/me", response_model=UserResponse)
+def read_me(current_user: User = Depends(get_current_user)):
+    return current_user

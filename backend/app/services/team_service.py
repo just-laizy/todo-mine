@@ -1,5 +1,6 @@
 from app.repositories.team_repository import TeamRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.task_repository import TaskRepository
 from app.repositories.activity_repository import ActivityRepository
 from app.core.exceptions import NotAllowed, TeamNotFound, AssigneeNotFound
 from app.domain.enums import UserRole
@@ -12,17 +13,20 @@ class TeamService:
             self,
             team_repository: TeamRepository,
             user_repository : UserRepository,
-            activity_repository : ActivityRepository
+            activity_repository : ActivityRepository,
+            task_repository : TaskRepository
         ):
         self.team_repository = team_repository
         self.user_repository = user_repository
         self.activity_repository = activity_repository
+        self.task_repository = task_repository
     
     def create_team(self,name : str,current_user : User) ->Team:
         if current_user.role not in (UserRole.SUPERADMIN,UserRole.MANAGER):
             raise NotAllowed()
         team = self.team_repository.create(name = name,manager_id=current_user.id)
         self.user_repository.set_team(current_user,team.id)  # type: ignore
+        self.activity_repository.create(current_user.id, "team.created", f"team: {team.name}")
         return team
     
     def get_team(self,team_id : int) -> Team:
@@ -56,3 +60,15 @@ class TeamService:
         return self.user_repository.set_team(user, None)
 
         
+    def delete_team(self, team_id: int, current_user: User) -> None:
+        team = self.team_repository.get_by_id(team_id)
+        if team is None:
+            raise TeamNotFound()
+        if current_user.role != UserRole.SUPERADMIN and current_user.id != team.manager_id: # type: ignore
+            raise NotAllowed()
+
+        for member in self.user_repository.get_by_team(team_id):
+            self.user_repository.set_team(member, None)
+        self.activity_repository.create(current_user.id, "team.removed", f"team: {team.name}")
+        self.task_repository.clear_team(team_id)
+        self.team_repository.delete(team)

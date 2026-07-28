@@ -49,6 +49,20 @@ async function loadAssignable() {
     assignableUsers.forEach((u) => userNames.set(u.id, u.name));
 
     const select = document.getElementById("t-assignee");
+        const collabBox = document.getElementById("t-collabs");
+    if (collabBox) {
+        collabBox.innerHTML = "";
+        for (const user of assignableUsers) {
+            if (currentUser && user.id === currentUser.id) continue;  // don't list yourself
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "pick-chip";
+            chip.dataset.userId = user.id;
+            chip.textContent = user.name;
+            chip.addEventListener("click", () => chip.classList.toggle("selected"));
+            collabBox.appendChild(chip);
+        }
+    }
     if (!select) return;
     select.innerHTML = "";
     for (const user of assignableUsers) {
@@ -145,6 +159,12 @@ function renderCard(task) {
     card.addEventListener("dragstart", () => card.classList.add("dragging"));
     card.addEventListener("dragend",   () => card.classList.remove("dragging"));
     card.addEventListener("click", () => openTask(task.id));
+
+    if (currentUser && currentUser.role === "user" && task.assignee_id !== currentUser.id) {
+        card.draggable = false;
+        card.style.cursor = "default";
+    }
+
     return card;
 }
 
@@ -168,7 +188,7 @@ async function loadBoard() {
         if (columnTasks.length > COLUMN_LIMIT) {
             const more = document.createElement("button");
             more.className = "show-more";
-            more.textContent = "Show " + " more";
+            more.textContent = "Show " + (columnTasks.length - COLUMN_LIMIT) + " more";
             more.addEventListener("click", (event) => {
                 event.stopPropagation();
                 openColumnModal(column.label, columnTasks);
@@ -291,6 +311,8 @@ const taskError = document.getElementById("task-error");
 function openModal() {
     document.getElementById("task-form").reset();
     taskError.textContent = "";
+    document.querySelectorAll("#t-collabs .pick-chip.selected")
+        .forEach((chip) => chip.classList.remove("selected"));
     modal.classList.remove("hidden");
 }
 function closeModal() { modal.classList.add("hidden"); }
@@ -312,6 +334,8 @@ document.getElementById("task-form").addEventListener("submit", async (event) =>
     const due = document.getElementById("t-due").value;
     if (due) payload.due_date = due;
     payload.assignee_id = Number(document.getElementById("t-assignee").value);
+    payload.collaborator_ids = [...document.querySelectorAll("#t-collabs .pick-chip.selected")]
+        .map((chip) => Number(chip.dataset.userId));
 
     try {
         await api("/tasks/", { method: "POST", body: JSON.stringify(payload) });
@@ -326,11 +350,16 @@ const detail = document.getElementById("detail-backdrop");
 const dError = document.getElementById("d-error");
 
 async function openTask(taskId) {
+    let task;
+    try {
+        task = await api("/tasks/" + taskId);
+    } catch {
+        toast("You can only open your own tasks");
+        return;
+    }
     openTaskId = taskId;
     dError.textContent = "";
     detail.classList.remove("hidden");
-
-    const task = await api("/tasks/" + taskId);
     document.getElementById("d-title").textContent = task.title;
     document.getElementById("d-desc").textContent = task.description || "";
     const pills = document.getElementById("d-pills");
@@ -357,10 +386,25 @@ async function openTask(taskId) {
         (userNames.get(task.assignee_id) || ("User " + task.assignee_id)) +
         (task.due_date ? "  ·  due " + task.due_date : "");
 
+    const collabNames = (task.collaborators || []).map((c) => c.name);
+    const collabEl = document.getElementById("d-collabs");
+    if (collabEl) {
+        collabEl.textContent = collabNames.length
+            ? "Collaborators: " + collabNames.join(", ")
+            : "";
+    }
+
     const canReview = currentUser &&
         (currentUser.role === "manager" || currentUser.role === "superadmin") &&
         task.status === "pending_review";
     document.getElementById("review-box").classList.toggle("hidden", !canReview);
+
+    const canDelete = currentUser && (
+        currentUser.role === "superadmin" ||
+        currentUser.role === "manager" ||
+        task.assignee_id === currentUser.id
+    );
+    document.getElementById("detail-delete").classList.toggle("hidden", !canDelete);
 
     loadChecklist();
     loadComments();

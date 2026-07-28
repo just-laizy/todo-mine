@@ -7,11 +7,10 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.comment_repository import CommentRepository
 from app.repositories.checklistItem_repository import ChecklistItemRepository
 
-
 from app.schemas.comment import CommentResponse , CommentCreate
 from app.db.models import User
 from app.services.task_service import TaskService
-from app.schemas.task import TaskResponse, TaskStatusUpdate,TaskUpdate, TaskCreate,ReviewCreate
+from app.schemas.task import TaskResponse, TaskStatusUpdate,TaskUpdate, TaskCreate,ReviewCreate,CollaboratorsUpdate
 from app.schemas.checklistItem import ChecklistItemResponse, ChecklistItemCreate
 from app.api.deps import get_current_user,get_task_service
 from app.domain.enums import TaskPriority,TaskStatus, TaskCategory
@@ -36,6 +35,7 @@ def create_task(
         due_date=data.due_date,
         assignee_id=data.assignee_id,
         current_user=current_user,
+        collaborator_ids=data.collaborator_ids,
     )
 @router.get('/', response_model=list[TaskResponse])
 def get_tasks(
@@ -158,3 +158,14 @@ def get_checklist(
     service : TaskService = Depends(get_task_service)
 ):
     return service.list_items(task_id=task_id,current_user=current_user)
+
+
+
+@router.patch("/{task_id}/collaborators", response_model=TaskResponse)
+def set_collaborators(
+    task_id: int,
+    data: CollaboratorsUpdate,
+    service: TaskService = Depends(get_task_service),
+    current_user: User = Depends(get_current_user),
+):
+    return service.set_collaborators(task_id, data.user_ids, current_user)

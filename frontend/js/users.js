@@ -6,6 +6,7 @@ let me = null;
 let allUsers = [];
 let teams = [];
 let editingId = null;
+let editingUser = null;
 
 const toastEl = document.getElementById("toast");
 function toast(msg) {
@@ -101,6 +102,13 @@ function render() {
 
         row.append(avatar, info, role, team);
 
+        if (user.status === "inactive") {
+            const status = document.createElement("span");
+            status.className = "u-inactive";
+            status.textContent = "Inactive";
+            row.appendChild(status);
+        }
+
         if (me.role === "superadmin") {
             row.addEventListener("click", () => openEdit(user));
         } else {
@@ -120,10 +128,18 @@ const eError = document.getElementById("e-error");
 
 function openEdit(user) {
     editingId = user.id;
+    editingUser = user;
     eError.textContent = "";
     document.getElementById("e-title").textContent = user.name;
     document.getElementById("e-sub").textContent = user.email;
-    document.getElementById("e-role").value = user.role;
+
+    const roleSelect = document.getElementById("e-role");
+    roleSelect.value = user.role;
+    // the API refuses to let a superadmin change their own role
+    roleSelect.disabled = user.id === me.id;
+    document.getElementById("e-role-hint").textContent =
+        roleSelect.disabled ? "You cannot change your own role." : "";
+
     document.getElementById("e-status").value = user.status || "active";
 
     const teamSelect = document.getElementById("e-team");
@@ -142,6 +158,7 @@ function openEdit(user) {
 function closeEdit() {
     editModal.classList.add("hidden");
     editingId = null;
+    editingUser = null;
 }
 
 document.getElementById("e-cancel").addEventListener("click", closeEdit);
@@ -149,24 +166,37 @@ editModal.addEventListener("click", (e) => { if (e.target === editModal) closeEd
 
 document.getElementById("e-save").addEventListener("click", async () => {
     eError.textContent = "";
+
+    const role = document.getElementById("e-role").value;
+    const status = document.getElementById("e-status").value;
     const teamValue = document.getElementById("e-team").value;
+    const teamId = teamValue ? Number(teamValue) : null;
 
-    const payload = {
-        role:   document.getElementById("e-role").value,
-        status: document.getElementById("e-status").value,
-    };
-    if (teamValue) payload.team_id = Number(teamValue);
+    // send only what actually changed
+    const payload = {};
+    if (editingUser.id !== me.id && role !== editingUser.role) payload.role = role;
+    if (status !== (editingUser.status || "active")) payload.status = status;
+    if (teamId !== (editingUser.team_id ?? null)) payload.team_id = teamId;
 
+    if (Object.keys(payload).length === 0) {
+        closeEdit();
+        return;
+    }
+
+    const saveButton = document.getElementById("e-save");
+    saveButton.disabled = true;
     try {
         await api("/admin/users/" + editingId, {
             method: "PATCH",
             body: JSON.stringify(payload),
         });
         closeEdit();
-        toast("User updated");
+        toast(payload.role ? "Role changed to " + ROLE_LABELS[payload.role] : "User updated");
         loadUsers();
     } catch (err) {
         eError.textContent = err.message;
+    } finally {
+        saveButton.disabled = false;
     }
 });
 

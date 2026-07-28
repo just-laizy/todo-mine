@@ -1,5 +1,4 @@
-"""Seed the database with a realistic office: 1 superadmin, 3 teams,
-3 managers, 15 users, 45 tasks spread across statuses and due dates."""
+"""Seed: 1 superadmin, 3 teams, 3 managers, 15 users, 45 tasks."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -29,29 +28,36 @@ USER_NAMES = [
     ["Arslan P.", "Bahar Y.", "Dovlet N.", "Enejan V.", "Guych O."],
 ]
 
-# title, category, priority — cycled across users
 TASK_TEMPLATES = [
-    ("Redesign settings screen",        TaskCategory.UI_UX,    TaskPriority.MEDIUM),
-    ("Fix login form validation",       TaskCategory.FRONTEND, TaskPriority.ADVANCED),
-    ("Optimise task list query",        TaskCategory.BACKEND,  TaskPriority.MEDIUM),
-    ("Push notifications on Android",   TaskCategory.MOBILE,   TaskPriority.ADVANCED),
-    ("Set up staging pipeline",         TaskCategory.DEVOPS,   TaskPriority.URGENT),
-    ("Dark mode colour tokens",         TaskCategory.UI_UX,    TaskPriority.LOW),
-    ("Board drag-and-drop polish",      TaskCategory.FRONTEND, TaskPriority.MEDIUM),
-    ("Add Redis cache to stats",        TaskCategory.BACKEND,  TaskPriority.ADVANCED),
-    ("Offline mode for mobile app",     TaskCategory.MOBILE,   TaskPriority.URGENT),
-    ("Nightly database backups",        TaskCategory.DEVOPS,   TaskPriority.URGENT),
-    ("Empty-state illustrations",       TaskCategory.UI_UX,    TaskPriority.LOW),
-    ("Client-side form errors",         TaskCategory.FRONTEND, TaskPriority.LOW),
-    ("Audit log pagination",            TaskCategory.BACKEND,  TaskPriority.MEDIUM),
-    ("Crash reporting SDK",             TaskCategory.MOBILE,   TaskPriority.MEDIUM),
-    ("Docker image size reduction",     TaskCategory.DEVOPS,   TaskPriority.LOW),
+    ("Redesign settings screen",      TaskCategory.UI_UX,    TaskPriority.MEDIUM),
+    ("Fix login form validation",     TaskCategory.FRONTEND, TaskPriority.ADVANCED),
+    ("Optimise task list query",      TaskCategory.BACKEND,  TaskPriority.MEDIUM),
+    ("Push notifications on Android", TaskCategory.MOBILE,   TaskPriority.ADVANCED),
+    ("Set up staging pipeline",       TaskCategory.DEVOPS,   TaskPriority.URGENT),
+    ("Dark mode colour tokens",       TaskCategory.UI_UX,    TaskPriority.LOW),
+    ("Board drag-and-drop polish",    TaskCategory.FRONTEND, TaskPriority.MEDIUM),
+    ("Add Redis cache to stats",      TaskCategory.BACKEND,  TaskPriority.ADVANCED),
+    ("Offline mode for mobile app",   TaskCategory.MOBILE,   TaskPriority.URGENT),
+    ("Nightly database backups",      TaskCategory.DEVOPS,   TaskPriority.URGENT),
+    ("Empty-state illustrations",     TaskCategory.UI_UX,    TaskPriority.LOW),
+    ("Client-side form errors",       TaskCategory.FRONTEND, TaskPriority.LOW),
+    ("Audit log pagination",          TaskCategory.BACKEND,  TaskPriority.MEDIUM),
+    ("Crash reporting SDK",           TaskCategory.MOBILE,   TaskPriority.MEDIUM),
+    ("Docker image size reduction",   TaskCategory.DEVOPS,   TaskPriority.LOW),
+]
+
+DESCRIPTIONS = [
+    "Follow up with the assignee if this is blocked.",
+    "Check the acceptance criteria before starting.",
+    "Coordinate with QA once the first pass is done.",
+    "Keep the PR small and focused for easier review.",
+    "Note any edge cases in the task comments.",
 ]
 
 # status, due-date offset in days (None = no due date)
 TASK_SHAPES = [
     (TaskStatus.TODO,           3),
-    (TaskStatus.IN_PROGRESS,    -2),    # overdue on purpose
+    (TaskStatus.IN_PROGRESS,    -2),    # overdue
     (TaskStatus.DONE,           -6),
     (TaskStatus.TODO,           0),     # due today
     (TaskStatus.PENDING_REVIEW, 5),
@@ -76,7 +82,6 @@ def seed():
             print(f"Sign in as {ADMIN_EMAIL} / {ADMIN_PASSWORD}")
             return
 
-        # ---------- superadmin ----------
         admin = User(
             name="Site Admin",
             email=ADMIN_EMAIL,
@@ -92,7 +97,6 @@ def seed():
         shape_index = 0
 
         for team_number, team_info in enumerate(TEAMS, start=1):
-            
             manager_email = f"manager{team_number}@ojak.com"
             manager = User(
                 name=team_info["manager"],
@@ -111,9 +115,8 @@ def seed():
 
             manager.team_id = team.id
             session.commit()
-            print(f"manager     {manager_email} / {MANAGER_PASSWORD}  → {team.name}")
+            print(f"manager     {manager_email} / {MANAGER_PASSWORD}  -> {team.name}")
 
-            # ---------- members ----------
             for member_number in range(1, 6):
                 member_email = f"team{team_number}user{member_number}@ojak.com"
                 member = User(
@@ -127,10 +130,10 @@ def seed():
                 session.commit()
                 session.refresh(member)
 
-                # ---------- 3 tasks per member ----------
                 for _ in range(3):
                     title, category, priority = TASK_TEMPLATES[template_index % len(TASK_TEMPLATES)]
                     status, due_offset = TASK_SHAPES[shape_index % len(TASK_SHAPES)]
+                    description = DESCRIPTIONS[template_index % len(DESCRIPTIONS)]
                     template_index += 1
                     shape_index += 1
 
@@ -140,7 +143,7 @@ def seed():
 
                     task = Task(
                         title=title,
-                        description=f"{title}. Follow up with the assignee if blocked.",
+                        description=description,
                         status=status,
                         priority=priority,
                         category=category,

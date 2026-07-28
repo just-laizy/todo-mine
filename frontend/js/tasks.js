@@ -82,7 +82,13 @@ async function loadNames() {
     }
     render();
 }
-
+function canAccess(task) {
+    if (!me) return false;
+    if (me.role === "superadmin") return true;
+    if (me.role === "manager" && task.team_id === me.team_id) return true;
+    if (task.assignee_id === me.id) return true;
+    return (task.collaborators || []).some((c) => c.id === me.id);
+}
 async function loadTasks() {
     allTasks = await api("/tasks/");
     render();
@@ -263,6 +269,10 @@ const STATUS_COLORS = {
 const drawer = document.getElementById("detail-backdrop");
 
 function openDrawer(task) {
+    if (!canAccess(task)) {
+        toast("You can only open your own tasks");
+        return;
+    }
     document.getElementById("d-title").textContent = task.title;
     document.getElementById("d-accent").style.background = STATUS_COLORS[task.status] || "var(--border)";
 
@@ -282,7 +292,8 @@ function openDrawer(task) {
     prio.textContent = task.priority;
     pills.append(cat, status, prio);
 
-    document.getElementById("d-sub").textContent = "Assigned to " + nameOf(task.assignee_id);
+    document.getElementById("d-sub").innerHTML =
+        "Assigned to <strong>" + nameOf(task.assignee_id) + "</strong>";
     document.getElementById("d-desc").textContent = task.description || "No description";
 
     const grid = document.getElementById("d-grid");
@@ -376,7 +387,7 @@ function renderGroups() {
             status.textContent = STATUS_LABELS[task.status] || task.status;
 
             const who = document.createElement("span");
-            who.className = "tmeta";
+            who.className = "tmeta who-name";
             who.textContent = nameOf(task.assignee_id);
 
             const due = document.createElement("span");

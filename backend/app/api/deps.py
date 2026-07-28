@@ -8,6 +8,7 @@ from app.db.session import get_db
 from app.db.models import User
 from app.services.task_service import TaskService
 from app.services.team_service import TeamService
+from app.services.auth_service import AuthService
 from app.domain.enums import UserRole
 from app.core.exceptions import NotAllowed
 
@@ -45,16 +46,17 @@ def get_task_service(
             ActivityRepository(session)    
         )
         return service
-
-def get_team_service(
-    session : Session = Depends(get_db)
-    ) -> TeamService:
-        service = TeamService(   
-            TeamRepository(session),
-            UserRepository(session),
-            ActivityRepository(session)    
-        )
-        return service
+def get_auth_service(session: Session = Depends(get_db)) -> AuthService:
+    return AuthService(
+        repository=UserRepository(session)
+    )
+def get_team_service(session: Session = Depends(get_db)) -> TeamService:
+    return TeamService(
+        TeamRepository(session),
+        UserRepository(session),
+        ActivityRepository(session),
+        TaskRepository(session),
+    )
 
 
 def require_superadmin(current_user: User = Depends(get_current_user)) -> User:

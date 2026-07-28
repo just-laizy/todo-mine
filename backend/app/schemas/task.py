@@ -2,6 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from app.domain.enums import TaskPriority,TaskStatus, ReviewDecision, TaskCategory
 from datetime import date,datetime
 
+from app.schemas.user import UserMini
+
 class TaskCreate(BaseModel):
     title : str
     description : str
@@ -9,6 +11,10 @@ class TaskCreate(BaseModel):
     category : TaskCategory
     due_date : date | None = None
     assignee_id : int | None = None
+    collaborator_ids: list[int] = []
+
+class CollaboratorsUpdate(BaseModel):
+    user_ids: list[int]
 
 class TaskResponse(BaseModel):
     id : int
@@ -17,6 +23,7 @@ class TaskResponse(BaseModel):
     status : TaskStatus
     priority : TaskPriority
     category : TaskCategory
+    collaborators: list[UserMini] = []
     due_date : date | None = None
     assignee_id : int | None = None
     assigner_id : int 
@@ -24,6 +31,7 @@ class TaskResponse(BaseModel):
     done_at : datetime | None= None
     updated_at: datetime | None = None
     model_config = ConfigDict(from_attributes=True)
+    
 
 class TaskStatusUpdate(BaseModel):
     status : TaskStatus
@@ -38,5 +46,5 @@ class TaskUpdate(BaseModel):
 
 class ReviewCreate(BaseModel):
     decision : ReviewDecision
-    comment : str | None
+    comment : str | None = None
 
